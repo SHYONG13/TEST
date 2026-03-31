@@ -1,0 +1,195 @@
+<button id="nav-btn" onclick="toggleNavMenu()" title="Open Slide List">📋 MENU</button>
+
+<div id="nav-menu">
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px;">
+    <h3 style="color:#333; margin:0; border:none !important; font-family: serif;">Slide Navigation</h3>
+    <button onclick="toggleNavMenu()" style="background:none; border:none; color:#999; font-size:28px; cursor:pointer; line-height:1;">&times;</button>
+  </div>
+  <ul id="slide-list"></ul>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js" 
+        onload="renderMathInElement(document.body);"></script>
+
+<style>
+  /* 2. MENU BUTTON STYLING */
+  #nav-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: sans-serif;
+    cursor: pointer;
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 4px;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+  }
+
+  #nav-btn:hover { opacity: 1; background: #f0f0f0; }
+
+  /* 3. LIGHT SIDE MENU PANEL */
+  #nav-menu {
+    position: fixed;
+    top: 0;
+    left: -320px; 
+    width: 280px;
+    height: 100%;
+    background: #ffffff; /* Light Background */
+    color: #333;
+    padding: 20px;
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    font-family: serif; /* Matches Serif Theme */
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    border-right: 1px solid #ddd;
+  }
+
+  #nav-menu.open { left: 0; }
+
+  #slide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #slide-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+
+  #slide-list a {
+    color: #0072B2 !important; /* Professional Blue */
+    text-decoration: none !important;
+    font-size: 0.9em;
+    display: block;
+    transition: padding-left 0.2s ease;
+  }
+
+  #slide-list a:hover { 
+    color: #000 !important; 
+    padding-left: 5px; /* Subtle hover effect */
+  }
+
+  /* --- REST OF YOUR CSS REMEMAINS THE SAME --- */
+  :root {
+    --r-background-color: #ffffff !important;
+    --r-main-font-size: clamp(22px, 2.2vw, 28px); 
+    --r-main-color: #000000;
+  }
+  
+  .reveal, .reveal .slides, .reveal .slides section {
+    background-color: #ffffff !important;
+    text-align: left !important;
+    font-size: var(--r-main-font-size);
+    color: var(--r-main-color);
+  }
+
+  /* ... (Keep your existing safety zones, columns, and KaTeX CSS here) ... */
+  
+  .reveal .slides section {
+    padding: 0 !important; height: 100% !important; display: flex !important;
+    flex-direction: column !important; justify-content: center !important;
+  }
+
+  .reveal .slides {
+    width: 90% !important; /* Forces the slide content area to be wider */
+    height: 95% !important;
+  }
+
+  /* Restore normal blue link color inside slides */
+  .reveal a {
+    color: #0645AD !important;   /* Standard browser blue */
+    text-decoration: underline;  /* Optional: looks more like a real link */
+  }
+
+  .reveal a:visited {
+    color: #0B0080 !important;   /* Standard visited purple */
+  }
+
+</style>
+
+<script>
+function toggleNavMenu() {
+  const menu = document.getElementById('nav-menu');
+  const list = document.getElementById('slide-list');
+  
+  if (!menu.classList.contains('open')) {
+    list.innerHTML = '';
+    const slides = document.querySelectorAll('.reveal .slides > section');
+
+    slides.forEach((slide, index) => {
+      const customEl = slide.querySelector('.slide-title');
+      const custom = customEl ? customEl.getAttribute('data-title') : null;
+
+      const header = slide.querySelector('h1, h2, h3, h4');
+
+      let title = "Slide " + (index + 1);
+
+      if (custom) title = custom;
+      else if (header) title = header.innerText.trim();
+
+      if (index === 0) title = "🏠 Home (Title)";
+
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="#/${index}" onclick="toggleNavMenu()">${title}</a>`;
+      list.appendChild(li);
+    });
+    menu.classList.add('open');
+  } else {
+    menu.classList.remove('open');
+  }
+}
+</script>
+
+<canvas id="annotator"
+        style="position:fixed; top:0; left:0; width:100%; height:100%;
+               pointer-events:none; z-index: 1000;"></canvas>
+
+<script>
+  const c = document.getElementById('annotator');
+  const ctx = c.getContext('2d');
+  let draw = false;
+
+  function resize() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  window.addEventListener('mousedown', e => {
+    if (e.shiftKey) {   // SHIFT to draw
+      draw = true;
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(e.clientX, e.clientY);
+    }
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (draw) {
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.stroke();
+    }
+  });
+
+  window.addEventListener('mouseup', () => draw = false);
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'c') {   // press "c" to clear
+      ctx.clearRect(0, 0, c.width, c.height);
+    }
+  });
+</script>
+
+
