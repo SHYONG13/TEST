@@ -133,3 +133,17 @@ The work done $W$ is positive when the system expands against an external pressu
 
 # Bibliography
 <div id="refs"></div>
+
+---
+
+:::: {.columns}
+::: {.column width="50%"}
+### Math Scores by Gender
+
+Here's a box plot showing the distribution of Math scores for different genders. We can observe the median scores and the spread of data for each group.
+:::
+
+::: {.column width="50%"}
+<iframe data-src='media/plots/boxplot_math_gender.html' width='100%' height='500px' style='border:none;'></iframe>
+:::
+::::
